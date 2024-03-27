@@ -1,0 +1,10 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20323,31.90434]},"properties":{"OBJECTID":533,"BUSNIESS_N":"مكتبة الصحافة العربية","BUSNIESS_1":"Arab Press Library","X":169409.8526,"Y":145751.374}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.19826,31.90421]},"properties":{"OBJECTID":566,"BUSNIESS_N":"مكتبة الحصري","BUSNIESS_1":"Hussary Library","X":168939.2167,"Y":145737.1093}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20028,31.90826]},"properties":{"OBJECTID":431,"BUSNIESS_N":"مكتبة أبو شقرة","BUSNIESS_1":"Abu Shakira Library","X":169130.4944,"Y":146186.5238}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20036,31.89737]},"properties":{"OBJECTID":450,"BUSNIESS_N":"مبنى البحث العلمي  القدس المفتوحة","BUSNIESS_1":"Alquds Almaftohah Library","X":169137.8921,"Y":144978.9197}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20132,31.9048]},"properties":{"OBJECTID":264,"BUSNIESS_N":"مكتبة التجهيزات العلمية والمخبرية","BUSNIESS_1":"Scientific Supplies Center & Lab Co.","X":169229.3453,"Y":145802.8254}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20402,31.90489]},"properties":{"OBJECTID":265,"BUSNIESS_N":"شركة مكتبة الساريسي","BUSNIESS_1":"Al-Sarisi Bookshop Co.","X":169484.2093,"Y":145811.8849}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.20438,31.90577]},"properties":{"OBJECTID":266,"BUSNIESS_N":"شركة مكتبة الساريسي","BUSNIESS_1":"Al-Sarisi Bookshop Co.","X":169518.2254,"Y":145909.6598}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[35.19609,31.90626]},"properties":{"OBJECTID":333,"BUSNIESS_N":"شركة مكتبة الساريسي","BUSNIESS_1":"Al-Sarisi Bookshop Co.","X":168727.8454,"Y":145961.8118}}
+]}

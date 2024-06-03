@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeoJSON Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map { height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // إنشاء الخريطة وتحديد مركزها
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        // إضافة طبقة بلاط من OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // تحميل وعرض البيانات الجغرافية الأولى
+        $.getJSON("data/data_rml.json", function(RZ) {
+            L.geoJson(RZ, {
+                style: function(feature) {
+                    return {
+                        fillColor: "yellow",
+                        fillOpacity: 0.3,
+                        color: "yellow",
+                        weight: 1.0,
+                        opacity: 0.7
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    layer.on('click', function(e) {
+                        alert("Zone: " + feature.properties.NAME_ENGLI + "\nMAIL_CODE: " + feature.properties.MAIL_CODE);
+                    });
+                }
+            }).addTo(map);
+        });
+
+        // تحميل وعرض البيانات الجغرافية الثانية
+        $.getJSON("data/lla_faciltits.json", function(WC) {
+            L.geoJson(WC, {
+                pointToLayer: function(feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        radius: 5,
+                        fillColor: "orange",
+                        color: "orange",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+            }).addTo(map);
+        });
+
+        // تحميل وعرض البيانات الجغرافية الثالثة (تحقق من نوع البيانات ما إذا كانت نقاط أم لا)
+        $.getJSON("data/Sarea_poly.json", function(WC) {
+            L.geoJson(WC, {
+                style: function(feature) {
+                    return {
+                        fillColor: "blue",
+                        fillOpacity: 0.3,
+                        color: "blue",
+                        weight: 1.0,
+                        opacity: 0.7
+                    };
+                }
+            }).addTo(map);
+        });
+    </script>
+</body>
+</html>

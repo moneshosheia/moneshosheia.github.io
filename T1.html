@@ -1,62 +1,219 @@
-// STEP 1
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-   $.getJSON("data_rml.json", function(RZ) {
-      L.geoJson(RZ, {
-        style: function(feature) {
-          return {
-            fillColor: "yellow",
-            fillOpacity: 0.3,
-            color: "yellow",
-            weight: 1.0,
-            opacity: 0.7
-          };
-        }
-      }).addTo(map);
-    });
+// خوارزمية Dijkstra
+const dijkstra = (edges, V, src) => {
+  // بناء adjacency list
+  const adj = Array.from({ length: V }, () => []);
+  for (const [u, v, weight] of edges) {
+    adj[u].push([v, weight]);
+    adj[v].push([u, weight]);
+  }
 
+  // تهيئة المسافات
+  const dist = Array(V).fill(Infinity);
+  dist[src] = 0;
 
+  // MinHeap للتتبع
+  const minHeap = new MinHeap();
+  minHeap.push([0, src]);
 
-// STEP 2
+  while (minHeap.size() > 0) {
+    const [currentDist, u] = minHeap.pop();
 
-        },
-        onEachFeature: function(feature, layer) {
-          layer.on('click', function(e) {
-            alert("Zone Name: " + feature.properties.NAME);
-          });
-        }
+    if (currentDist > dist[u]) continue;
 
-// STEP 3
+    // تحديث المسافات للجيران
+    for (const [v, weight] of adj[u]) {
+      const newDist = currentDist + weight;
+      if (newDist < dist[v]) {
+        dist[v] = newDist;
+        minHeap.push([newDist, v]);
+      }
+    }
+  }
 
-            alert("Zone: " + feature.properties.NAME_ENGLI + "\nMAIL_CODE: " + feature.properties.MAIL_CODE);
+  return dist;
+};
 
-// STEP 4
+class MinHeap {
+  constructor() {
+    this.heap = [];
+  }
 
-    $.getJSON("lla_faciltits.json", function(WC) {
-      L.geoJson(WC, {
-        pointToLayer: function(feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 5,
-            fillColor: "orange",
-            color: "orange",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          });
-        }
-      }).addTo(map);
-    });
+  push(pair) {
+    this.heap.push(pair);
+    this._bubbleUp();
+  }
 
-    $.getJSON("Sarea_poly.json", function(WC) {
-      L.geoJson(WC, {
-        pointToLayer: function(feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 5,
-            fillColor: "orange",
-            color: "orange",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          });
-        }
-      }).addTo(map);
-    });
+  pop() {
+    if (this.size() === 1) return this.heap.pop();
+    const top = this.heap[0];
+    this.heap[0] = this.heap.pop();
+    this._bubbleDown();
+    return top;
+  }
+
+  size() {
+    return this.heap.length;
+  }
+
+  _bubbleUp() {
+    let idx = this.heap.length - 1;
+    while (idx > 0) {
+      const parentIdx = Math.floor((idx - 1) / 2);
+      if (this.heap[parentIdx][0] <= this.heap[idx][0]) break;
+      [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];
+      idx = parentIdx;
+    }
+  }
+
+  _bubbleDown() {
+    let idx = 0;
+    const length = this.heap.length;
+    while (true) {
+      const left = 2 * idx + 1;
+      const right = 2 * idx + 2;
+      let smallest = idx;
+
+      if (left < length && this.heap[left][0] < this.heap[smallest][0]) {
+        smallest = left;
+      }
+      if (right < length && this.heap[right][0] < this.heap[smallest][0]) {
+        smallest = right;
+      }
+      if (smallest === idx) break;
+      [this.heap[idx], this.heap[smallest]] = [this.heap[smallest], this.heap[idx]];
+      idx = smallest;
+    }
+  }
+}
+
+// مكوّن البطاقة العامة
+function FeatureCard({ title, link }) {
+  return (
+    <Link to={link}>
+      <div className="rounded-2xl shadow-xl bg-white text-gray-900 overflow-hidden flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300">
+        <div className="p-5 space-y-4 flex flex-col justify-between grow">
+          <h2 className="text-xl font-semibold">{title}</h2>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// الصفحة الرئيسية
+function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-100 to-violet-100 p-6">
+      <header className="text-center mb-10">
+        <h1 className="text-5xl font-bold text-fuchsia-900">البدائل المرورية</h1>
+        <p className="text-fuchsia-700 mt-4 text-lg">مشروع تخرج - جامعة بيرزيت</p>
+      </header>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <FeatureCard title="تحليل الطرق البديلة" link="/alternative-routes" />
+        <FeatureCard title="إغلاق الشوارع" link="/road-closure" />
+        <FeatureCard title="محاكاة حركة السير" link="/traffic-simulation" />
+        <FeatureCard title="حالات الطوارئ" link="/emergency-cases" />
+      </div>
+    </div>
+  );
+}
+
+// صفحة تحليل الطرق البديلة
+function AlternativeRoutes() {
+  const [source, setSource] = useState("");
+  const [results, setResults] = useState(null);
+
+  const edges = [
+    [0, 1, 4],
+    [0, 2, 8],
+    [1, 4, 6],
+    [2, 3, 2],
+    [3, 4, 10],
+  ];
+  const V = 5;
+
+  const handleAnalyze = () => {
+    const src = parseInt(source);
+    if (isNaN(src)) return alert("يرجى إدخال رقم صحيح");
+    const distances = dijkstra(edges, V, src);
+    setResults(distances);
+  };
+
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-center">تحليل الطرق البديلة</h1>
+      <div className="mt-6">
+        <label>إدخال النقطة المصدر:</label>
+        <input
+          type="number"
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          className="border p-2 ml-2"
+        />
+        <button onClick={handleAnalyze} className="bg-blue-500 text-white px-4 py-2 ml-2">
+          تحليل
+        </button>
+      </div>
+      {results && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">المسافات من النقطة {source}:</h2>
+          <ul>
+            {results.map((d, i) => (
+              <li key={i}>إلى النقطة {i}: {d === Infinity ? "غير متصل" : d}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// صفحة إغلاق الشوارع
+function RoadClosure() {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-center">إغلاق الشوارع</h1>
+      <p className="text-center mt-4">هذه الصفحة ستعرض المسارات البديلة عند إغلاق شارع معين.</p>
+    </div>
+  );
+}
+
+// صفحة محاكاة حركة السير
+function TrafficSimulation() {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-center">محاكاة حركة السير</h1>
+      <p className="text-center mt-4">هذه الصفحة ستعرض محاكاة لحركة السير بناءً على عدد السيارات والكثافة.</p>
+    </div>
+  );
+}
+
+// صفحة حالات الطوارئ
+function EmergencyCases() {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-center">حالات الطوارئ</h1>
+      <p className="text-center mt-4">هذه الصفحة ستعرض الطريق الأسرع إلى المستشفى في حالات الطوارئ.</p>
+    </div>
+  );
+}
+
+// المكون الرئيسي للتطبيق
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/alternative-routes" element={<AlternativeRoutes />} />
+        <Route path="/road-closure" element={<RoadClosure />} />
+        <Route path="/traffic-simulation" element={<TrafficSimulation />} />
+        <Route path="/emergency-cases" element={<EmergencyCases />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
